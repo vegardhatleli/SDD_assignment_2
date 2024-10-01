@@ -136,15 +136,6 @@ class Task_1_Program:
                                 self.db_connection.commit()
 
     def insert_trackpoints(self, base_dir):
-        def insert_batch(self, batch_data):
-            query = """
-            INSERT INTO TrackPoint (activity_id, lat, lon, altitude, date_days, date_time)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """
-            self.cursor.executemany(query, batch_data)
-            self.db_connection.commit()
-    
-        print(f"Inserted {len(batch_data)} trackpoints.")
         batch_data = []
         batch_size = 10000  # You can adjust the batch size based on your requirements
         file_count = 0
@@ -176,9 +167,11 @@ class Task_1_Program:
                                 date_days = data[4]
                                 date_time = data[5] + ' ' + data[6]
                                 date_time = datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
+                                
+                                if altitude != '-777':
 
                                 # Add data to the batch list
-                                batch_data.append((activity_id, latitude, longitude, altitude, date_days, date_time))
+                                    batch_data.append((activity_id, latitude, longitude, altitude, date_days, date_time))
 
                                 # If the batch size is reached, insert the batch and clear the list
                                 if len(batch_data) >= batch_size:
@@ -187,6 +180,7 @@ class Task_1_Program:
                                     batch_data.clear()
 
                             file_count += 1
+
         # Insert any remaining data
         if batch_data:
             print(f"Inserting final batch of {len(batch_data)} trackpoints...")
@@ -194,7 +188,14 @@ class Task_1_Program:
 
         print(f"Finished processing {file_count} files.")
 
-
+    def insert_batch(self, batch_data):
+        query = """
+        INSERT INTO TrackPoint (activity_id, lat, lon, altitude, date_days, date_time)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        self.cursor.executemany(query, batch_data)
+        self.db_connection.commit()
+        print(f"Inserted {len(batch_data)} trackpoints.")
 
 
     def fetch_data(self, table_name):
@@ -230,9 +231,9 @@ def main():
         #program.insert_users(base_dir="dataset/dataset/Data",labeled_ids_file="dataset/dataset/labeled_ids.txt")
         #program.create_activites_table()
         #program.insert_activities(base_dir="dataset/dataset/Data")
-        #program.drop_table("TrackPoints")
-        #program.create_trackpoints_table()
-        #program.insert_trackpoints(base_dir="dataset/dataset/Data")
+        #program.drop_table("TrackPoint")
+        program.create_trackpoints_table()
+        program.insert_trackpoints(base_dir="dataset/dataset/Data")
         program.show_tables()
 
     except Exception as e:
