@@ -122,11 +122,11 @@ class Task_2_Program:
 
     def total_distance_walked_by_user_in_2008(self, user_id=112):
         query = """
-        SELECT lat, lon, date_time
+        SELECT lat, lon, date_time, activity_id
         FROM TrackPoint tp
         JOIN Activity a ON tp.activity_id = a.id
         JOIN User u ON a.user_id = u.id
-        WHERE YEAR(tp.date_time) = 2008 AND u.id = %s
+        WHERE YEAR(tp.date_time) = 2008 AND u.id = %s AND a.transportation_mode = "WALK"
         ORDER BY tp.date_time
         """
         
@@ -135,11 +135,19 @@ class Task_2_Program:
 
         total_distance = 0.0
 
+        activity_distance = 0.0
+
         # Calculate the distance between consecutive trackpoints
         for i in range(1, len(trackpoints)):
-            lat1, lon1, _ = trackpoints[i - 1]  # previous point
-            lat2, lon2, _ = trackpoints[i]      # current point
-            total_distance += haversine((lat1, lon1), (lat2, lon2))
+            lat1, lon1, _, activity_id1 = trackpoints[i - 1]  # previous point
+            lat2, lon2, _, activity_id2 = trackpoints[i]      # current point
+            if activity_id1 != activity_id2:
+                total_distance += activity_distance
+                activity_distance = 0
+            else:
+                activity_distance += haversine((lat1, lon1), (lat2, lon2))
+                
+        total_distance += activity_distance
 
         if total_distance > 0:
             print(f"Total distance walked by user {user_id} in 2008: {total_distance:.2f} km")
@@ -323,27 +331,27 @@ def main():
     try:
         program = Task_2_Program()
            
-        program.show_tables()
-        user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
-        print("Number of users:", user_count)
-        print("Number of activities:", activity_count)
-        print("Number of trackpoints:", trackpoint_count)
-        avg_activities = program.avg_activities_per_user()
-        print("Average number of activities per user:", avg_activities)
-        top_20_users = program.top_20_users_with_most_activities()
-        print("Top 20 users with most activities:")
-        print(tabulate(top_20_users, headers=["User ID", "Activity count"]))
-        program.find_taxi_users()
-        program.count_transportation_modes()
-        program.find_year_with_most_activities_and_hours()
+        #program.show_tables()
+        # user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
+        # print("Number of users:", user_count)
+        # print("Number of activities:", activity_count)
+        # print("Number of trackpoints:", trackpoint_count)
+        # avg_activities = program.avg_activities_per_user()
+        # print("Average number of activities per user:", avg_activities)
+        # top_20_users = program.top_20_users_with_most_activities()
+        # print("Top 20 users with most activities:")
+        # print(tabulate(top_20_users, headers=["User ID", "Activity count"]))
+        # program.find_taxi_users()
+        # program.count_transportation_modes()
+        # program.find_year_with_most_activities_and_hours()
         program.total_distance_walked_by_user_in_2008()
-        program.find_users_with_invalid_activities()
-        program.find_users_in_forbidden_city()
+        # program.find_users_with_invalid_activities()
+        # program.find_users_in_forbidden_city()
         
         
-        program.top_20_users_by_altitude_gain()
+        #program.top_20_users_by_altitude_gain()
         
-        program.get_most_used_transportation_mode()
+        #program.get_most_used_transportation_mode()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:
