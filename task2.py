@@ -300,7 +300,7 @@ class Task_2_Program:
         query = """
         SELECT user_id, transportation_mode, COUNT(*) as mode_count
         FROM Activity
-        WHERE transportation_mode != 'unknown'
+        WHERE transportation_mode IS NOT NULL
         GROUP BY user_id, transportation_mode
         ORDER BY user_id, mode_count DESC
         """
