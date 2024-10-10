@@ -40,15 +40,17 @@ class Task_2_Program:
         return round(avg_activities,3)
     
     def top_20_users_with_most_activities(self):
-        query = """
-                SELECT user_id, COUNT(*) AS activity_count 
-                FROM Activity 
-                GROUP BY user_id 
-                ORDER BY activity_count DESC LIMIT 20
-        """
-        self.cursor.execute(query)
-        top_20_users = self.cursor.fetchall()
-        return top_20_users
+            query = """
+                    SELECT user_id, COUNT(*) AS activity_count 
+                    FROM Activity 
+                    GROUP BY user_id 
+                    ORDER BY activity_count DESC LIMIT 20
+            """
+            self.cursor.execute(query)
+            top_20_users = self.cursor.fetchall()
+            
+            print(tabulate(top_20_users, headers=['User ID', 'Activity Count'], tablefmt="pretty"))
+            return top_20_users
     
     def find_taxi_users(self):
         query = """
@@ -78,9 +80,9 @@ class Task_2_Program:
         modes = self.cursor.fetchall()
 
         if modes:
+            table = tabulate(modes, headers=["Transportation Mode", "Count"], tablefmt="pretty")
             print("Transportation modes and their activity counts (sorted by count):")
-            for mode, count in modes:
-                print(f"{mode}: {count}")
+            print(table)
         else:
             print("No transportation modes found.")
 
@@ -196,6 +198,7 @@ class Task_2_Program:
             else:
                 print("No altitude data found.")
                     
+
     def find_users_with_invalid_activities(self):
         query = """
         SELECT u.id AS user_id, a.id AS activity_id, tp.date_time
@@ -257,11 +260,13 @@ class Task_2_Program:
             invalid_activities_per_user[current_user_id] += 1
 
         if invalid_activities_per_user:
-            print("Users with Invalid Activities (User ID, Invalid Activity Count):")
-            for user_id, count in sorted(invalid_activities_per_user.items(), key=lambda x: x[1], reverse=True):
-                print(f"User {user_id}: {count} invalid activities")
+            table_data = [[user_id, count] for user_id, count in sorted(invalid_activities_per_user.items(), key=lambda x: x[1], reverse=True)]
+            table = tabulate(table_data, headers=["User ID", "Invalid Activity Count"], tablefmt="pretty")
+            print("Users with Invalid Activities:")
+            print(table)
         else:
             print("No users with invalid activities found.")
+
 
 
     def find_users_in_forbidden_city(self):
@@ -294,6 +299,7 @@ class Task_2_Program:
         else:
             print("No users found who have tracked an activity in the Forbidden City.")
                 
+
     def get_most_used_transportation_mode(self):
         print("Finding users with their most used transportation mode...")
         
@@ -321,9 +327,14 @@ class Task_2_Program:
                 if mode_count > most_used_modes[user_id][1]:
                     most_used_modes[user_id] = (transportation_mode, mode_count)
         
-        print("\nMost used transportation modes per user:")
-        for user_id, (mode, _) in sorted(most_used_modes.items()):
-            print(f"User ID: {user_id}, Most Used Mode: {mode}")
+        if most_used_modes:
+            table_data = [[user_id, mode] for user_id, (mode, _) in sorted(most_used_modes.items())]
+            table = tabulate(table_data, headers=["User ID", "Most Used Transportation Mode"], tablefmt="pretty")
+            print("\nMost used transportation modes per user:")
+            print(table)
+        else:
+            print("No transportation mode data available.")
+
 
 
 def main():
@@ -331,23 +342,21 @@ def main():
     try:
         program = Task_2_Program()
            
-        program.show_tables()
-        user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
-        print("Number of users:", user_count)
-        print("Number of activities:", activity_count)
-        print("Number of trackpoints:", trackpoint_count)
-        avg_activities = program.avg_activities_per_user()
-        print("Average number of activities per user:", avg_activities)
-        top_20_users = program.top_20_users_with_most_activities()
-        print("Top 20 users with most activities:")
-        print(tabulate(top_20_users, headers=["User ID", "Activity count"]))
-        program.find_taxi_users()
-        program.count_transportation_modes()
-        program.find_year_with_most_activities_and_hours()
-        program.total_distance_walked_by_user_in_2008()
-        program.find_users_with_invalid_activities()
-        program.find_users_in_forbidden_city()
-        program.top_20_users_by_altitude_gain()
+        # program.show_tables()
+        # user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
+        # print("Number of users:", user_count)
+        # print("Number of activities:", activity_count)
+        # print("Number of trackpoints:", trackpoint_count)
+        # avg_activities = program.avg_activities_per_user()
+        # print("Average number of activities per user:", avg_activities)
+        # program.top_20_users_with_most_activities()
+        # program.find_taxi_users()
+        # program.count_transportation_modes()
+        # program.find_year_with_most_activities_and_hours()
+        # program.total_distance_walked_by_user_in_2008()
+        # program.find_users_with_invalid_activities()
+        # program.find_users_in_forbidden_city()
+        # program.top_20_users_by_altitude_gain()
         program.get_most_used_transportation_mode()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
