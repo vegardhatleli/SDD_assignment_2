@@ -37,7 +37,7 @@ class Task_2_Program:
         
         avg_activities = activity_count / user_count
 
-        return avg_activities
+        return round(avg_activities,3)
     
     def top_20_users_with_most_activities(self):
         query = """
@@ -70,7 +70,7 @@ class Task_2_Program:
         query = """
         SELECT transportation_mode, COUNT(*) AS mode_count
         FROM Activity
-        WHERE transportation_mode != 'unknown'
+        WHERE transportation_mode IS NOT NULL
         GROUP BY transportation_mode
         ORDER BY mode_count DESC
         """
@@ -161,7 +161,7 @@ class Task_2_Program:
             JOIN Activity a ON tp.activity_id = a.id
             JOIN User u ON a.user_id = u.id
             WHERE tp.altitude != -777 -- Exclude invalid altitude
-            ORDER BY u.id, tp.date_time; -- Ensure we get data in correct order for each user
+            ORDER BY u.id, tp.date_time;
             """
             
             self.cursor.execute(query)
@@ -280,9 +280,9 @@ class Task_2_Program:
         """
         
         self.cursor.execute(query, 
-                            (forbidden_city_lat - tolerance, 
+                            (forbidden_city_lat, 
                             forbidden_city_lat + tolerance, 
-                            forbidden_city_lon - tolerance, 
+                            forbidden_city_lon, 
                             forbidden_city_lon + tolerance))
         
         results = self.cursor.fetchall()
@@ -331,27 +331,24 @@ def main():
     try:
         program = Task_2_Program()
            
-        #program.show_tables()
-        # user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
-        # print("Number of users:", user_count)
-        # print("Number of activities:", activity_count)
-        # print("Number of trackpoints:", trackpoint_count)
-        # avg_activities = program.avg_activities_per_user()
-        # print("Average number of activities per user:", avg_activities)
-        # top_20_users = program.top_20_users_with_most_activities()
-        # print("Top 20 users with most activities:")
-        # print(tabulate(top_20_users, headers=["User ID", "Activity count"]))
-        # program.find_taxi_users()
-        # program.count_transportation_modes()
-        # program.find_year_with_most_activities_and_hours()
+        program.show_tables()
+        user_count, activity_count, trackpoint_count = program.count_users_activities_trackpoints()
+        print("Number of users:", user_count)
+        print("Number of activities:", activity_count)
+        print("Number of trackpoints:", trackpoint_count)
+        avg_activities = program.avg_activities_per_user()
+        print("Average number of activities per user:", avg_activities)
+        top_20_users = program.top_20_users_with_most_activities()
+        print("Top 20 users with most activities:")
+        print(tabulate(top_20_users, headers=["User ID", "Activity count"]))
+        program.find_taxi_users()
+        program.count_transportation_modes()
+        program.find_year_with_most_activities_and_hours()
         program.total_distance_walked_by_user_in_2008()
-        # program.find_users_with_invalid_activities()
-        # program.find_users_in_forbidden_city()
-        
-        
-        #program.top_20_users_by_altitude_gain()
-        
-        #program.get_most_used_transportation_mode()
+        program.find_users_with_invalid_activities()
+        program.find_users_in_forbidden_city()
+        program.top_20_users_by_altitude_gain()
+        program.get_most_used_transportation_mode()
     except Exception as e:
         print("ERROR: Failed to use database:", e)
     finally:

@@ -111,7 +111,7 @@ class Task_1_Program:
                                 end_date_time = datetime.strptime(end_date_time, "%Y-%m-%d %H:%M:%S")
 
                                 # Default transportation mode if no label found
-                                transportation_mode = "unknown"
+                                transportation_mode = None
 
                                 for (label_start, label_end), mode in labels.items():
                                     if label_start == start_date_time and label_end == end_date_time:
@@ -207,17 +207,13 @@ def main():
     program = None
     try:
         program = Task_1_Program()
-
-        #program.drop_table("Activity")
-        #program.drop_table("User")
-        #program.drop_table("TrackPoint")
-        #program.create_user_table()
+        program.create_user_table()
         print("####")
-        #program.insert_users(base_dir="dataset/dataset/Data",labeled_ids_file="dataset/dataset/labeled_ids.txt")
+        program.insert_users(base_dir="dataset/dataset/Data",labeled_ids_file="dataset/dataset/labeled_ids.txt")
         print("####")
-        #program.create_activites_table()
+        program.create_activites_table()
         print("####")
-        #program.insert_activities(base_dir="dataset/dataset/Data")
+        program.insert_activities(base_dir="dataset/dataset/Data")
         print("####")
         program.create_trackpoints_table()
         print("####")
